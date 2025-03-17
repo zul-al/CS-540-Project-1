@@ -33,15 +33,29 @@ const SchedulerSimulator = () => {
   const handlePDFGeneration = () => {
     const doc = new jsPDF();
     let y = 10;
+    const pageHeight = doc.internal.pageSize.getHeight(); // get the current page height
+  
     Object.entries(schedules).forEach(([algo, schedule]) => {
+      // Check if adding a header would overflow the page, if so, add a new page
+      if (y + 10 > pageHeight) {
+        doc.addPage();
+        y = 10;
+      }
       doc.text(`${algo} Schedule:`, 10, y);
       y += 10;
+  
       schedule.forEach((item) => {
+        // Check if adding the next line would exceed page height
+        if (y + 10 > pageHeight) {
+          doc.addPage();
+          y = 10;
+        }
         doc.text(`Process ${item.pid}: Start ${item.startTime} - End ${item.finishTime}`, 10, y);
         y += 10;
       });
-      y += 10;
+      y += 10; // add extra space after each algorithm's schedule
     });
+  
     doc.save('schedules.pdf');
   };
 
